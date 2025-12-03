@@ -1,4 +1,4 @@
-# MLX90641 Thermal Sensor Project
+# MLX90641 IR Array - Thermal Sensor Project
 
 This project explores the **MLX90641**, a compact **16×12 infrared (IR) thermal camera** designed for measuring temperature variations across surfaces, such as an incubator plate.
 
