@@ -1,6 +1,6 @@
 # MLX90641 Thermal Sensor Project
 
-This project explores the **MLX90641**, a compact **16×12 infrared (IR) thermal camera** designed for measuring temperature variations across surfaces—such as an incubator plate.
+This project explores the **MLX90641**, a compact **16×12 infrared (IR) thermal camera** designed for measuring temperature variations across surfaces, such as an incubator plate.
 
 A student of mine selected this sensor for a proposal, and I agreed before fully digging into its requirements. As it turns out… this fascinating little device demands *quite a bit* from the microcontroller driving it.
 
