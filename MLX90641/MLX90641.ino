@@ -29,7 +29,7 @@
 //#define DEBUG                             // show calculated and example values for calibration constants
 #define OFFSET 0.0                          // posthoc cheap adjustment
 #define MLX90641_ADDR 0x33                  // I2C bit address of the MLX90641
-#define NUM_PIXELS 192                      // number of pizels
+#define NUM_PIXELS 192                      // number of pixels
 #define BLOCK_SIZE 8                        // block size for reading words
 #define I2C_SPEED 100000                    // safe speed is 100 kHz
 #define REFRESH_RATE 0x03                   // 0x00 (0.5 Hz) to 0x07 (64 Hz). Default: 0x03 (4 Hz)
@@ -1015,3 +1015,4 @@ bool setRefreshRate(uint8_t rate) {
 #endif
   return (Wire.endTransmission() == 0);
 }
+
