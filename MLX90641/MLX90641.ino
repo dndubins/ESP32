@@ -34,7 +34,7 @@
 #define I2C_SPEED 100000                    // safe speed is 100 kHz
 #define REFRESH_RATE 0x03                   // 0x00 (0.5 Hz) to 0x07 (64 Hz). Default: 0x03 (4 Hz)
 #define SAMPLE_DELAY 300                    // delay between reading samples (see setRefreshRate() table)
-#define POR_DELAY SAMPLE_DELAY * 2.0 * 1.2  // delay required after power on reset (see setRefreshRate() table )
+#define POR_DELAY SAMPLE_DELAY * 2.0 * 1.2  // delay required after power on reset (see setRefreshRate() table)
 #define FRAME_ADDR 0x0400                   // Starting address for pixel data in RAM
 #define STATUS_ADDR 0x8000                  // Address for Status Register
 #define CAL_INT -45.4209807273067           // Intercept of T_meas vs. T_o calibration curve (post-hoc calibration)
@@ -903,6 +903,7 @@ void loop() {
         float lim2 = 25.0;  // middle limit for heat map
         float lim3 = 27.0;  // high limit for heat map
 #ifdef HEATMAP
+        // Replace heat map characters here as limit
         if (T_o[r * 16 + c] > lim3) Serial.print("H");  // hot
         if (T_o[r * 16 + c] > lim2 && T_o[r * 16 + c] <= lim3) Serial.print("*");
         if (T_o[r * 16 + c] > lim1 && T_o[r * 16 + c] <= lim2) Serial.print(".");
@@ -935,6 +936,7 @@ void loop() {
 #endif
 }
 
+// Print a number in exponent notation on Serial Monitor for error HEATMAP
 String float2exp(float num, byte sigDigits) {
   if (num == 0) return "0.00e+0";
   if (isnan(num)) return "NaN";
@@ -975,7 +977,7 @@ uint16_t pix_addr_S0(uint16_t pxl) {
 
 // to retrieve pixel address, subpage 1
 uint16_t pix_addr_S1(uint16_t pxl) {
-  uint16_t x = 0x0420;              // base memory for pix, sp0
+  uint16_t x = 0x0420;              // base memory for pix, sp1
   if (pxl >= NUM_PIXELS) return 0;  // or assert / error print
   return x + pxl + 32 * (pxl / 32);
 }
@@ -1015,4 +1017,5 @@ bool setRefreshRate(uint8_t rate) {
 #endif
   return (Wire.endTransmission() == 0);
 }
+
 
