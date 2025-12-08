@@ -1,19 +1,19 @@
-// AMG8833_Heatmap.pde
+// MLX90641_Heatmap.pde
 // Author: Perplexity AI, with assistance from D. Dubins
 // Date: 05-Dec-25
-// Simple 8x8 heat map for AMG8833 serial output
-// Expects lines: Tth, p0, p1, ... p63 (comma-separated)
-// Match port name + baud (9600) to your Arduino
+// Simple 16x12 heat map for MLX90641 serial output
+// Expects lines: Tth, p0, p1, ... p191 (comma-separated)
+// Match port name + baud (115200) to your Arduino
 
 import processing.serial.*;
 
 Serial myPort;
-float[] pixels = new float[64];
+float[] pixels = new float[192];
 boolean haveFrame = false;
 
 // grid / window settings
-int cols = 8;
-int rows = 8;
+int cols = 16;
+int rows = 12;
 int cellSize = 60;         // pixel size of each cell
 int margin = 20;           // outer margin
 
@@ -31,7 +31,7 @@ void setup() {
 
   // Pick the right index from the printed list
   String portName = Serial.list()[0];   // change 0 -> 1/2/... as needed
-  myPort = new Serial(this, portName, 9600);
+  myPort = new Serial(this, portName, 115200);
 
   // Read one line at a time
   myPort.bufferUntil('\n');
@@ -53,7 +53,7 @@ void draw() {
   // Draw 8x8 heatmap
   for (int y = 0; y < rows; y++) {
     for (int x = 0; x < cols; x++) {
-      int idx = y * cols + x;    // linear index 0..63
+      int idx = y * cols + x;    // linear index 0..191
       float t = pixels[idx];
 
       // Clamp to [minTemp, maxTemp]
@@ -98,15 +98,15 @@ void serialEvent(Serial s) {
   // Split on commas
   String[] parts = split(line, ',');
 
-  // Expect 1 + 64 = 65 values (thermistor + 64 pixels)
-  if (parts.length < 65) {
+  // Expect 1 + 192 = 193 values (thermistor + 192 pixels)
+  if (parts.length < 193) {
     // Not a full frame; ignore
     println("Short line, len = " + parts.length + ": " + line);
     return;
   }
 
   // Parse pixel temperatures (skip index 0 which is thermistor)
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < 192; i++) {
     pixels[i] = parseFloat(parts[i + 1]);
   }
 
