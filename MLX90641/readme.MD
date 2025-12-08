@@ -33,11 +33,11 @@ If you want an easier alternative with more library support, consider the **MLX9
 
 ## Files in this Directory
 
-*MLX90641.ino* is a library-free standalone file for the MLX90641, written for the ESP32.
+**MLX90641.ino** is a library-free standalone file for the MLX90641, written for the ESP32.
 
-*MLX90641_processing.ino* is a stripped-down version of this file, written to generate a heatmap in Processing (one line on the Serial monitor for all pixel data).
+**MLX90641_processing.ino** is a stripped-down version of this file, written to generate a heatmap in Processing (one line on the Serial monitor for all pixel data).
 
-*MLX90641_Heatmap.pde* is a program to receive the data from MLX90641_processing.ino and generate the heatmap.
+**MLX90641_Heatmap.pde** is a program to receive the data from MLX90641_processing.ino and generate the heatmap.
 
 ---
 
