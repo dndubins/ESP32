@@ -1,7 +1,7 @@
 // AMLX90641_NeoPixel.ino
 // Prints 16x12 temperature matrix to 16x16 NeoPixel display
 // Author: D. Dubins
-// Date: 08-Dec-25
+// Date: 10-Dec-25
 //
 // Notes: the MLX90641 operating voltage is 3-3.6V (typical: 3.3V).
 // Use a logic shifter, or connect to an MCU that operates at 3.3V (e.g. NodeMCU).
@@ -18,51 +18,20 @@
 //     \______________/
 //
 // ESP32 - MLX90641:
-// --------------------------------------
+// -----------------
 // SDA - D21 (GPIO21) - SDA
 // SCL - D22 (GPIO22) - SCL
 // GND -  GND
 // 3.3V - VDD
+//
+// ESP32 - NeoPixel:
+// -----------------
+// Vin - +5V
+// D19 - Data
+// GND = GND
 
+#include <Wire.h>     // include the Wire library for I2C
 #include <FastLED.h>  // FastLED by Daniel Garcia, v3.10.3
-#define LED_PIN 19    // GPIO19 (D19) for LED pin to NeoPixel
-#define NUM_LEDS 192
-#define BRIGHTNESS 10  // 0-255 (brightest)
-#define LED_TYPE WS2811
-#define COLOR_ORDER GRB
-CRGB leds[NUM_LEDS];
-
-byte LEDpixelMap[16][16] = {  // 16x16 = 256 pixels on the LCD screen (snake trail)
-  { 0, 31, 32, 63, 64, 95, 96, 127, 128, 159, 160, 191, 192, 223, 224, 255 },
-  { 1, 30, 33, 62, 65, 94, 97, 126, 129, 158, 161, 190, 193, 222, 225, 254 },
-  { 2, 29, 34, 61, 66, 93, 98, 125, 130, 157, 162, 189, 194, 221, 226, 253 },
-  { 3, 28, 35, 60, 67, 92, 99, 124, 131, 156, 163, 188, 195, 220, 227, 252 },
-  { 4, 27, 36, 59, 68, 91, 100, 123, 132, 155, 164, 187, 196, 219, 228, 251 },
-  { 5, 26, 37, 58, 69, 90, 101, 122, 133, 154, 165, 186, 197, 218, 229, 250 },
-  { 6, 25, 38, 57, 70, 89, 102, 121, 134, 153, 166, 185, 198, 217, 230, 249 },
-  { 7, 24, 39, 56, 71, 88, 103, 120, 135, 152, 167, 184, 199, 216, 231, 248 },
-  { 8, 23, 40, 55, 72, 87, 104, 119, 136, 151, 168, 183, 200, 215, 232, 247 },
-  { 9, 22, 41, 54, 73, 86, 105, 118, 137, 150, 169, 182, 201, 214, 233, 246 },
-  { 10, 21, 42, 53, 74, 85, 106, 117, 138, 149, 170, 181, 202, 213, 234, 245 },
-  { 11, 20, 43, 52, 75, 84, 107, 116, 139, 148, 171, 180, 203, 212, 235, 244 },
-  { 12, 19, 44, 51, 76, 83, 108, 115, 140, 147, 172, 179, 204, 211, 236, 243 },
-  { 13, 18, 45, 50, 77, 82, 109, 114, 141, 146, 173, 178, 205, 210, 237, 242 },
-  { 14, 17, 46, 49, 78, 81, 110, 113, 142, 145, 174, 177, 206, 209, 238, 241 },
-  { 15, 16, 47, 48, 79, 80, 111, 112, 143, 144, 175, 176, 207, 208, 239, 240 }
-};
-
-TBlendType currentBlending;
-
-bool x_invert = false;  // true: invert x on LED
-bool y_invert = false;  // true: invert y on LED
-
-unsigned long timer = 0;  // to time samples
-
-#define TCOLD 23.0  // cold temperature threshold
-#define TMID 24.0   // intermediate temperature threshold
-#define THOT 25.0   // hot temperature threshold
-
-#include <Wire.h>
 
 #define OFFSET 0.0                          // posthoc cheap adjustment
 #define MLX90641_ADDR 0x33                  // I2C bit address of the MLX90641
@@ -114,6 +83,44 @@ float KTa_CP;                                // KTa_CP coefficient
 float TGC;                                   // TGC Coefficient
 float V_IR_compensated[NUM_PIXELS] = { 0 };  // V_IR_compensated values
 float T_o[NUM_PIXELS] = { 0.0 };             // Matrix to hold final T_o[i] values
+
+// NeoPixel Code
+#define LED_PIN 19    // GPIO19 (D19) for LED pin to NeoPixel
+#define NUM_LEDS 192
+#define BRIGHTNESS 10  // 0-255 (brightest)
+#define LED_TYPE WS2811
+#define COLOR_ORDER GRB
+CRGB leds[NUM_LEDS];
+TBlendType currentBlending;
+
+bool x_invert = false;  // true: invert x on LED
+bool y_invert = false;  // true: invert y on LED
+
+// Limits for colour visualization
+#define TCOLD 23.0  // cold temperature threshold
+#define TMID 24.0   // intermediate temperature threshold
+#define THOT 25.0   // hot temperature threshold
+
+byte LEDpixelMap[16][16] = {  // 16x16 = 256 pixels on the LCD screen (snake trail)
+  { 0, 31, 32, 63, 64, 95, 96, 127, 128, 159, 160, 191, 192, 223, 224, 255 },
+  { 1, 30, 33, 62, 65, 94, 97, 126, 129, 158, 161, 190, 193, 222, 225, 254 },
+  { 2, 29, 34, 61, 66, 93, 98, 125, 130, 157, 162, 189, 194, 221, 226, 253 },
+  { 3, 28, 35, 60, 67, 92, 99, 124, 131, 156, 163, 188, 195, 220, 227, 252 },
+  { 4, 27, 36, 59, 68, 91, 100, 123, 132, 155, 164, 187, 196, 219, 228, 251 },
+  { 5, 26, 37, 58, 69, 90, 101, 122, 133, 154, 165, 186, 197, 218, 229, 250 },
+  { 6, 25, 38, 57, 70, 89, 102, 121, 134, 153, 166, 185, 198, 217, 230, 249 },
+  { 7, 24, 39, 56, 71, 88, 103, 120, 135, 152, 167, 184, 199, 216, 231, 248 },
+  { 8, 23, 40, 55, 72, 87, 104, 119, 136, 151, 168, 183, 200, 215, 232, 247 },
+  { 9, 22, 41, 54, 73, 86, 105, 118, 137, 150, 169, 182, 201, 214, 233, 246 },
+  { 10, 21, 42, 53, 74, 85, 106, 117, 138, 149, 170, 181, 202, 213, 234, 245 },
+  { 11, 20, 43, 52, 75, 84, 107, 116, 139, 148, 171, 180, 203, 212, 235, 244 },
+  { 12, 19, 44, 51, 76, 83, 108, 115, 140, 147, 172, 179, 204, 211, 236, 243 },
+  { 13, 18, 45, 50, 77, 82, 109, 114, 141, 146, 173, 178, 205, 210, 237, 242 },
+  { 14, 17, 46, 49, 78, 81, 110, 113, 142, 145, 174, 177, 206, 209, 238, 241 },
+  { 15, 16, 47, 48, 79, 80, 111, 112, 143, 144, 175, 176, 207, 208, 239, 240 }
+};
+
+// MLX90641 Code
 
 // Read the device EEPROM
 bool readEEPROMBlock(uint16_t startAddr, uint16_t numWords, uint16_t *dest) {
@@ -1051,7 +1058,6 @@ bool setRefreshRate(uint8_t rate) {
   return (Wire.endTransmission() == 0);
 }
 
-// Fill the array LEDpixelMap[][] with black (overwrites all data)
 void LEDpixelMap_Black() {
   //clears the 8x8 LCD screen (shifts out zeros)
   for (int r = 0; r < 12; r++) {    // by row
@@ -1061,7 +1067,6 @@ void LEDpixelMap_Black() {
   }
 }
 
-// Clear the NeoPixel screen
 void LEDMatrixClear() {
   LEDpixelMap_Black();
   FastLED.show();
