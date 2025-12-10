@@ -39,6 +39,8 @@ If you want an easier alternative with more library support, consider the **MLX9
 
 **MLX90641_Heatmap.pde** is a program to receive the data from MLX90641_processing.ino and generate the heatmap.
 
+**MLX90641_NeoPixel.pde** is a program to receive the data from MLX90641_processing.ino and print it to a NeoPixel 16x16 led screen.
+
 ---
 
 ## 🚧 Status
