@@ -47,7 +47,7 @@ If you want an easier alternative with more library support, consider the **MLX9
 
 - [x] Basic communication working  
 - [x] Sensor reading and conversion implemented  
-- [ ] Data visualization tools  
+- [x] Data visualization tools  
 - [ ] Cleanup and documentation  
 
 ---
