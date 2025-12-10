@@ -1051,6 +1051,7 @@ bool setRefreshRate(uint8_t rate) {
   return (Wire.endTransmission() == 0);
 }
 
+// Fill the array LEDpixelMap[][] with black (overwrites all data)
 void LEDpixelMap_Black() {
   //clears the 8x8 LCD screen (shifts out zeros)
   for (int r = 0; r < 12; r++) {    // by row
@@ -1060,6 +1061,7 @@ void LEDpixelMap_Black() {
   }
 }
 
+// Clear the NeoPixel screen
 void LEDMatrixClear() {
   LEDpixelMap_Black();
   FastLED.show();
