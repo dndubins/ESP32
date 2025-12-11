@@ -4,7 +4,7 @@
 // Simple 16x12 heat map for MLX90641 serial output
 // Expects lines: Tth, p0, p1, ... p191 (comma-separated)
 // Match port name + baud (115200) to your Arduino
-// Libraries: ControlP5 v 2.2.6, by Anndreas Schlegal 
+// Libraries: ControlP5 v 2.2.6, by Andreas Schlegal 
 // (tutorial here: https://www.kasperkamperman.com/blog/processing-code/controlp5-library-example1/)
 
 import processing.serial.*;
@@ -24,6 +24,7 @@ int cols = 16;
 int rows = 12;
 int cellSize = 60;         // pixel size of each cell
 int margin = 20;           // outer margin
+float uiScale;             // scaling factor for different resolution screens
 
 // value range for color mapping (adjust to your environment)
 float minTemp = 15;        // cold color at/below this (default: 20)
@@ -40,6 +41,8 @@ float offsetval=0.0; // for temperature offset slider
 
 void settings() {
   size(cols * cellSize + margin * 2, rows * cellSize + margin * 2);
+  uiScale = (float)displayHeight / 1080.0;  // compare to your reference resolution
+  pixelDensity(displayDensity()); // ensures proper rendering on high-DPI displays
 }
 
 void setup() {
@@ -47,7 +50,7 @@ void setup() {
   println(Serial.list());
 
   // Pick the right index from the printed list
-  String portName = Serial.list()[0];   // Enter the index of your COM port here
+  String portName = Serial.list()[2];   // change to correct index of COM port as needed
   myPort = new Serial(this, portName, 115200);
 
   // Read one line at a time
@@ -149,6 +152,8 @@ public class SecondWindow extends PApplet {
 
   public void settings() {
     size(235, 155); // width, height
+    uiScale = (float)displayHeight / 1080.0;  // compare to your reference resolution
+    pixelDensity(displayDensity()); // ensures proper rendering on high-DPI displays
   }
 
   public void setup() {
@@ -158,17 +163,17 @@ public class SecondWindow extends PApplet {
 
     // define a toggle button for pausing the heat map
     cp5.addToggle("Pause")
-      .setPosition(20, 80)
-      .setSize(60, 30)
+      .setPosition(20*uiScale, 80*uiScale)
+      .setSize(int(60*uiScale), int(30*uiScale))
       .getCaptionLabel()
       .setText("Pause").toUpperCase(false)
-      .setFont(createFont("Arial Bold", 12))
+      .setFont(createFont("Arial Bold", 12*uiScale))
       .align(ControlP5.CENTER, ControlP5.CENTER);
 
     // define a toggle button for inverting in the x-direction
     cp5.addToggle("Invert_x")
-      .setPosition(90, 80)
-      .setSize(60, 30)
+      .setPosition(90*uiScale, 80*uiScale)
+      .setSize(int(60*uiScale), int(30*uiScale))
       .getCaptionLabel()
       .setText("Invert X").toUpperCase(false)
       .setFont(createFont("Arial Bold", 12))
@@ -176,8 +181,8 @@ public class SecondWindow extends PApplet {
 
     // define a toggle button for inverting in the y-direction
     cp5.addToggle("Invert_y")
-      .setPosition(160, 80)
-      .setSize(60, 30)
+      .setPosition(160*uiScale, 80*uiScale)
+      .setSize(int(60*uiScale), int(30*uiScale))
       .getCaptionLabel()
       .setText("Invert Y").toUpperCase(false)
       .setFont(createFont("Arial Bold", 12))
@@ -185,40 +190,40 @@ public class SecondWindow extends PApplet {
 
     // define a slider button for the lower colour temperature (blue)
     cp5.addSlider("min_T")
-      .setPosition(25, 35) // xpos, ypos
-      .setSize(140, 10) // width, height
+      .setPosition(25*uiScale, 35*uiScale) // xpos, ypos
+      .setSize(int(140*uiScale), int(10*uiScale)) // width, height
       .setRange(0, 30) // min/max range
       .setValue(15)   // default value of slider
       .setDecimalPrecision(1) 
       .setNumberOfTickMarks(61)
       .showTickMarks(false)
       .setCaptionLabel("Min °C") // label text
-      .setFont(createFont("Arial Bold", 12));
+      .setFont(createFont("Arial Bold", 12*uiScale));
 
     // define a slider button for the lower colour temperature (blue)
     cp5.addSlider("max_T")
-      .setPosition(25, 55) // xpos, ypos
-      .setSize(140, 10) // width, height
+      .setPosition(25*uiScale, 55*uiScale) // xpos, ypos
+      .setSize(int(140*uiScale), int(10*uiScale)) // width, height
       .setRange(20, 50) // min/max range
       .setValue(30)   // default value of slider
       .setDecimalPrecision(1) 
       .setNumberOfTickMarks(61)
       .showTickMarks(false)
       .setCaptionLabel("Max °C") // label text
-      .setFont(createFont("Arial Bold", 12));
+      .setFont(createFont("Arial Bold", 12*uiScale));
       
     // define a numberbox for the temperature offset
     cp5.addNumberbox("Offset")
-      .setPosition(90, 120)
-      .setSize(60, 14)
+      .setPosition(90*uiScale, 120*uiScale)
+      .setSize(int(60*uiScale), int(14*uiScale))
       .setRange(-10.0, 10.0)
       .setValue(0.0)
-      .setDirection(Controller.HORIZONTAL)  // drag left/right
+      .setDirection(Controller.VERTICAL)  // drag left/right
       .setMultiplier(0.1)         // smaller multiplier => slower change
       .setScrollSensitivity(2)   // mouse wheel faster changes
       .setCaptionLabel("Offset °C") // label text
       .setDecimalPrecision(1) 
-      .setFont(createFont("Arial Bold", 12));
+      .setFont(createFont("Arial Bold", 12*uiScale));
   }
 
   public void draw() {
@@ -263,5 +268,3 @@ public class SecondWindow extends PApplet {
     }
   }
 }
-
-
