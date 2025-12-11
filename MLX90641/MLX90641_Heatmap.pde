@@ -3,7 +3,7 @@
 // Date: 11-Dec-25
 // Simple 16x12 heat map for MLX90641 serial output
 // Expects lines: Tth, p0, p1, ... p191 (comma-separated)
-// Match port number + baud to your serial port settings
+// Match port + baud (9600) to your serial port settings
 // Libraries: ControlP5 v 2.2.6, by Andreas Schlegal
 // (tutorial here: https://www.kasperkamperman.com/blog/processing-code/controlp5-library-example1/)
 
@@ -269,5 +269,3 @@ public class SecondWindow extends PApplet {
     }
   }
 }
-
-
