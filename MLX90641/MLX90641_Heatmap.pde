@@ -213,7 +213,7 @@ public class SecondWindow extends PApplet {
       .setSize(60, 14)
       .setRange(-10.0, 10.0)
       .setValue(0.0)
-      .setDirection(Controller.VERTICAL)  // drag left/right
+      .setDirection(Controller.HORIZONTAL)  // drag left/right
       .setMultiplier(0.1)         // smaller multiplier => slower change
       .setScrollSensitivity(2)   // mouse wheel faster changes
       .setCaptionLabel("Offset °C") // label text
@@ -263,3 +263,4 @@ public class SecondWindow extends PApplet {
     }
   }
 }
+
