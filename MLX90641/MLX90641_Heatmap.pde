@@ -12,7 +12,7 @@ import controlP5.*;    // import controlP5 library
 
 final int PIXELS=192;  // number of pixels in the array
 PFont boldFont;        // declare a bold font for the control window header
-float fontScale=1.0;   // scaling factor to adjust font sizes for different resolution screens
+float fontScale=1.0/displayDensity();  // scaling factor to adjust font sizes for different resolution screens
 
 ControlP5 cp5; // controlP5 object called cp5
 
@@ -269,3 +269,4 @@ public class SecondWindow extends PApplet {
     }
   }
 }
+
