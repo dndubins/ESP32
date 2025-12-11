@@ -47,7 +47,7 @@ void setup() {
   println(Serial.list());
 
   // Pick the right index from the printed list
-  String portName = Serial.list()[0];   // change 0 -> 1/2/... as needed
+  String portName = Serial.list()[0];   // Enter the index of your COM port here
   myPort = new Serial(this, portName, 115200);
 
   // Read one line at a time
@@ -263,4 +263,5 @@ public class SecondWindow extends PApplet {
     }
   }
 }
+
 
