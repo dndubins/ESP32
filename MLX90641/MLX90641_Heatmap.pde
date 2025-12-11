@@ -12,13 +12,15 @@ import controlP5.*;    // import controlP5 library
 
 final int PIXELS=192;  // number of pixels in the array
 PFont boldFont;        // declare a bold font for the control window header
-float fontScale=1.0/displayDensity();  // scaling factor to adjust font sizes for different resolution screens
+PFont smallFont;       // declare small font to display ambient temperature
+
+float fontScale=1.0/displayDensity();   // scaling factor to adjust font sizes for different resolution screens
 
 ControlP5 cp5; // controlP5 object called cp5
 
 // Adjust COM port settings here
 Serial myPort; // for communications port
-int portNum = 0; // index for COM port number - update this open correct serial port.
+int portNum = 0; // index for COM port number - update to open the correct serial port.
 int portSpeed = 115200; // COM port baud rate in bps
 
 float[] pixels = new float[PIXELS];
@@ -33,6 +35,8 @@ int margin = 20;           // outer margin
 // value range for color mapping (adjust to your environment)
 float minTemp = 15;        // cold color at/below this (default: 20)
 float maxTemp = 30;        // hot color at/above this (default: 35)
+float Tamb = 0.0;          // to hold ambient temperature
+float Tavg = 0.0;          // to hold average temperature
 
 // second window definition
 SecondWindow win;
@@ -63,8 +67,10 @@ void setup() {
   textSize(14);
   win = new SecondWindow();
 
-  // Create bold font (Arial Bold, size 16)
-  boldFont = createFont("Arial Bold", 16);
+  // Create bold font (Calibri Bold, size 16)
+  boldFont = createFont("Calibri Bold", 17);
+  // Create small font (Calibri Bold, size 16)
+  smallFont = createFont("Calibri Bold", 15);
 }
 
 void draw() {
@@ -80,6 +86,7 @@ void draw() {
   // Draw 8x8 heatmap
 
   int xadj, yadj;
+  float total=0.0; // reset the average
   for (int y = 0; y < rows; y++) {
     for (int x = 0; x < cols; x++) {
       xadj=(invert_x)?cols-x-1:x;
@@ -87,6 +94,7 @@ void draw() {
 
       int idx = yadj * cols + xadj;    // linear index 0..191
       float t = pixels[idx];
+      total = total + t;
 
       // Clamp to [minTemp, maxTemp]
       float tt = constrain(t, minTemp, maxTemp);
@@ -118,6 +126,7 @@ void draw() {
       text(label, x0 + cellSize / 2.0, y0 + cellSize / 2.0);
     }
   }
+  Tavg=total/(float)PIXELS;
 }
 
 // Called automatically when a '\n' is received
@@ -139,6 +148,7 @@ void serialEvent(Serial s) {
 
   // Parse pixel temperatures (skip index 0 which is thermistor)
   if (!pause) {
+    Tamb=parseFloat(parts[0]) + offsetval;
     for (int i = 0; i < PIXELS; i++) {
       pixels[i] = parseFloat(parts[i + 1]) + offsetval;
     }
@@ -216,7 +226,7 @@ public class SecondWindow extends PApplet {
 
     // define a numberbox for the temperature offset
     cp5.addNumberbox("Offset")
-      .setPosition(90, 120)
+      .setPosition(160, 120)
       .setSize(60, 14)
       .setRange(-10.0, 10.0)
       .setValue(0.0)
@@ -233,6 +243,16 @@ public class SecondWindow extends PApplet {
     fill(255);
     textFont(boldFont);         // set bold font
     text("Heat Map Image Control", 25, 20);
+    textFont(smallFont);         // set bold font
+    text("Average:", 25, 128);   
+    text("Ambient:", 25, 148);
+    text("°C", 128, 128);   
+    text("°C", 128, 148);   
+    fill(220,220,220); // lighter grey
+    String label = nf(Tavg, 0, 1);     // Show 1 decimal place; adjust as desired
+    text(label, 90, 128);
+    label = nf(Tamb, 0, 1);
+    text(label, 90, 148);
   }
 
   public void controlEvent(ControlEvent theEvent) {
@@ -269,4 +289,3 @@ public class SecondWindow extends PApplet {
     }
   }
 }
-
