@@ -48,6 +48,7 @@ If you want an easier alternative with more library support, consider the **MLX9
 - [x] Basic communication working  
 - [x] Sensor reading and conversion implemented  
 - [x] Data visualization tools  
-- [ ] Cleanup and documentation  
+- [x] Cleanup and documentation  
 
+This project became a library! See [MLX90641](https://github.com/dndubins/MLX90641) for details.
 ---
